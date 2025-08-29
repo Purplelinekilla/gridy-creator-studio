@@ -41,7 +41,8 @@ export default {
 				'md': 'var(--shadow-md)'
 			},
 			fontFamily: {
-				'mono': 'var(--font-mono)'
+				'mono': 'var(--font-mono)',
+				'street': 'var(--font-street)'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

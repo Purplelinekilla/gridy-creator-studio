@@ -98,7 +98,7 @@ const Index = () => {
       <div className="flex h-screen">
         {/* Vertical Title */}
         <div className="hidden md:flex items-center justify-center w-8 bg-surface border-r border-border">
-          <div className="transform -rotate-90 text-xs font-mono tracking-wider text-text-secondary whitespace-nowrap">
+          <div className="transform -rotate-90 text-sm font-street font-black tracking-wider text-text-primary whitespace-nowrap">
             GRID[Y] GENERATOR
           </div>
         </div>
@@ -132,12 +132,12 @@ const Index = () => {
               </div>
               <div>
                 By <a 
-                  href="https://www.instagram.com/timur_zima/" 
+                  href="https://www.instagram.com/purplelinekilla/" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="text-text-secondary hover:text-text-primary transition-colors"
                 >
-                  Timur Zima
+                  Purplelinekilla
                 </a> [2025]
               </div>
             </div>

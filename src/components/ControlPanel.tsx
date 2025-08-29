@@ -1,4 +1,5 @@
 import { GridSettings } from './GridCanvas';
+import { Zap, Shuffle, Sparkles } from 'lucide-react';
 
 interface ControlPanelProps {
   settings: GridSettings;
@@ -266,15 +267,17 @@ export const ControlPanel = ({
         
         <div className="grid grid-cols-2 gap-2">
           <button 
-            className="button-secondary"
+            className="button-secondary flex items-center justify-center gap-1"
             onClick={onExportPNG}
           >
+            <Zap size={12} />
             PNG
           </button>
           <button 
-            className="button-secondary"
+            className="button-secondary flex items-center justify-center gap-1"
             onClick={onExportSVG}
           >
+            <Zap size={12} />
             SVG
           </button>
         </div>
@@ -283,10 +286,12 @@ export const ControlPanel = ({
       {/* Randomize */}
       <div className="control-section">
         <button 
-          className="button-primary w-full"
+          className="button-primary w-full flex items-center justify-center gap-2"
           onClick={onRandomize}
         >
-          Randomize ⚄⚃⚁
+          <Shuffle size={14} />
+          Randomize
+          <Sparkles size={12} />
         </button>
       </div>
     </div>

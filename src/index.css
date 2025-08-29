@@ -57,6 +57,7 @@
 
   /* Typography */
   --font-mono: 'SF Mono', 'Monaco', 'Cascadia Code', 'Roboto Mono', monospace;
+  --font-street: 'Impact', 'Helvetica Neue', 'Arial Black', sans-serif;
   
   /* Transitions */
   --transition: all 0.2s ease-in-out;
