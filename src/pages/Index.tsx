@@ -21,6 +21,10 @@ const Index = () => {
   });
 
   const exportToPNG = () => {
+    // Get the current canvas and copy its content
+    const currentCanvas = document.querySelector('canvas');
+    if (!currentCanvas) return;
+    
     // Create high-resolution canvas for 300 DPI export
     const scale = 4; // 4x scale for crisp 300 DPI output
     const canvas = document.createElement('canvas');
@@ -30,9 +34,11 @@ const Index = () => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     
-    // Scale context for high resolution
+    // Scale context for high resolution and disable smoothing for crisp lines
     ctx.scale(scale, scale);
-    ctx.imageSmoothingEnabled = false; // Crisp pixel-perfect lines
+    ctx.imageSmoothingEnabled = false;
+    ctx.lineCap = 'square';
+    ctx.lineJoin = 'miter';
     
     // Clear and set background
     ctx.clearRect(0, 0, settings.width, settings.height);
@@ -41,8 +47,8 @@ const Index = () => {
       ctx.fillRect(0, 0, settings.width, settings.height);
     }
     
-    // Draw grid with high precision
-    drawHighQualityGrid(ctx, settings);
+    // Draw the grid using the same logic as GridCanvas
+    drawGridOnCanvas(ctx, settings);
     
     const link = document.createElement('a');
     link.download = `grid-${settings.gridType}-${settings.width}x${settings.height}-300dpi.png`;
@@ -58,8 +64,8 @@ const Index = () => {
       svg += `<rect width="100%" height="100%" fill="white"/>`;
     }
 
-    // Generate crisp SVG patterns for all grid types
-    svg += generateHighQualitySVG(settings);
+    // Generate SVG for all grid types
+    svg += generateSVGForAllGridTypes(settings);
     svg += '</svg>';
     
     const blob = new Blob([svg], { type: 'image/svg+xml' });
@@ -88,77 +94,294 @@ const Index = () => {
     });
   };
 
-  // High-quality grid drawing function for PNG export
-  const drawHighQualityGrid = (ctx: CanvasRenderingContext2D, settings: GridSettings) => {
-    ctx.lineCap = 'square';
-    ctx.lineJoin = 'miter';
-    
-    if (settings.gridType === 'square') {
-      // Draw minor grid with pixel-perfect alignment
-      if (settings.showMinorGrid) {
-        ctx.strokeStyle = settings.minorColor;
-        ctx.lineWidth = settings.minorThickness;
-        ctx.beginPath();
-        for (let x = 0; x <= settings.width; x += settings.minorStep) {
-          const alignedX = Math.round(x) + 0.5;
-          ctx.moveTo(alignedX, 0);
-          ctx.lineTo(alignedX, settings.height);
-        }
-        for (let y = 0; y <= settings.height; y += settings.minorStep) {
-          const alignedY = Math.round(y) + 0.5;
-          ctx.moveTo(0, alignedY);
-          ctx.lineTo(settings.width, alignedY);
-        }
-        ctx.stroke();
-      }
-      
-      // Draw major grid with pixel-perfect alignment
-      if (settings.showMajorGrid) {
-        ctx.strokeStyle = settings.majorColor;
-        ctx.lineWidth = settings.majorThickness;
-        ctx.beginPath();
-        for (let x = 0; x <= settings.width; x += settings.majorStep) {
-          const alignedX = Math.round(x) + 0.5;
-          ctx.moveTo(alignedX, 0);
-          ctx.lineTo(alignedX, settings.height);
-        }
-        for (let y = 0; y <= settings.height; y += settings.majorStep) {
-          const alignedY = Math.round(y) + 0.5;
-          ctx.moveTo(0, alignedY);
-          ctx.lineTo(settings.width, alignedY);
-        }
-        ctx.stroke();
-      }
+  // Universal grid drawing function that handles all grid types
+  const drawGridOnCanvas = (ctx: CanvasRenderingContext2D, settings: GridSettings) => {
+    switch (settings.gridType) {
+      case 'square':
+        drawSquareGrid(ctx, settings);
+        break;
+      case 'dotted':
+        drawDottedGrid(ctx, settings);
+        break;
+      case 'isometric':
+        drawIsometricGrid(ctx, settings);
+        break;
+      case 'triangular':
+        drawTriangularGrid(ctx, settings);
+        break;
+      case 'polar':
+        drawPolarGrid(ctx, settings);
+        break;
+      case 'logarithmic':
+        drawLogarithmicGrid(ctx, settings);
+        break;
+      case 'modular':
+        drawModularGrid(ctx, settings);
+        break;
     }
-    // Add other grid types with same high-quality approach...
   };
 
-  // High-quality SVG generation function
-  const generateHighQualitySVG = (settings: GridSettings): string => {
+  // Grid drawing functions (same as in GridCanvas)
+  const drawSquareGrid = (ctx: CanvasRenderingContext2D, settings: GridSettings) => {
+    if (settings.showMinorGrid) {
+      ctx.strokeStyle = settings.minorColor;
+      ctx.lineWidth = settings.minorThickness;
+      ctx.beginPath();
+      for (let x = 0; x <= settings.width; x += settings.minorStep) {
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, settings.height);
+      }
+      for (let y = 0; y <= settings.height; y += settings.minorStep) {
+        ctx.moveTo(0, y);
+        ctx.lineTo(settings.width, y);
+      }
+      ctx.stroke();
+    }
+
+    if (settings.showMajorGrid) {
+      ctx.strokeStyle = settings.majorColor;
+      ctx.lineWidth = settings.majorThickness;
+      ctx.beginPath();
+      for (let x = 0; x <= settings.width; x += settings.majorStep) {
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, settings.height);
+      }
+      for (let y = 0; y <= settings.height; y += settings.majorStep) {
+        ctx.moveTo(0, y);
+        ctx.lineTo(settings.width, y);
+      }
+      ctx.stroke();
+    }
+  };
+
+  const drawDottedGrid = (ctx: CanvasRenderingContext2D, settings: GridSettings) => {
+    if (settings.showMinorGrid) {
+      ctx.fillStyle = settings.minorColor;
+      for (let x = 0; x <= settings.width; x += settings.minorStep) {
+        for (let y = 0; y <= settings.height; y += settings.minorStep) {
+          ctx.beginPath();
+          ctx.arc(x, y, settings.minorThickness, 0, 2 * Math.PI);
+          ctx.fill();
+        }
+      }
+    }
+
+    if (settings.showMajorGrid) {
+      ctx.fillStyle = settings.majorColor;
+      for (let x = 0; x <= settings.width; x += settings.majorStep) {
+        for (let y = 0; y <= settings.height; y += settings.majorStep) {
+          ctx.beginPath();
+          ctx.arc(x, y, settings.majorThickness, 0, 2 * Math.PI);
+          ctx.fill();
+        }
+      }
+    }
+  };
+
+  const drawIsometricGrid = (ctx: CanvasRenderingContext2D, settings: GridSettings) => {
+    ctx.strokeStyle = settings.minorColor;
+    ctx.lineWidth = settings.minorThickness;
+    ctx.beginPath();
+
+    const step = settings.minorStep;
+    const height = Math.sqrt(3) / 2 * step;
+
+    for (let y = 0; y <= settings.height + height; y += height) {
+      ctx.moveTo(0, y);
+      ctx.lineTo(settings.width, y);
+    }
+
+    for (let x = 0; x <= settings.width; x += step) {
+      for (let y = -settings.height; y <= settings.height * 2; y += height * 2) {
+        ctx.moveTo(x, y);
+        ctx.lineTo(x + settings.width, y + settings.height);
+        ctx.moveTo(x, y);
+        ctx.lineTo(x - settings.width, y + settings.height);
+      }
+    }
+
+    ctx.stroke();
+  };
+
+  const drawTriangularGrid = (ctx: CanvasRenderingContext2D, settings: GridSettings) => {
+    ctx.strokeStyle = settings.minorColor;
+    ctx.lineWidth = settings.minorThickness;
+    ctx.beginPath();
+
+    const step = settings.minorStep;
+    const height = Math.sqrt(3) / 2 * step;
+
+    for (let row = 0; row * height <= settings.height; row++) {
+      const y = row * height;
+      const offset = (row % 2) * (step / 2);
+      
+      for (let col = 0; col * step - offset <= settings.width; col++) {
+        const x = col * step - offset;
+        
+        if (x >= 0 && x <= settings.width) {
+          ctx.moveTo(x, y);
+          ctx.lineTo(x + step/2, y + height);
+          ctx.lineTo(x - step/2, y + height);
+          ctx.lineTo(x, y);
+        }
+      }
+    }
+
+    ctx.stroke();
+  };
+
+  const drawPolarGrid = (ctx: CanvasRenderingContext2D, settings: GridSettings) => {
+    const centerX = settings.width / 2;
+    const centerY = settings.height / 2;
+    const maxRadius = Math.min(centerX, centerY);
+
+    ctx.strokeStyle = settings.minorColor;
+    ctx.lineWidth = settings.minorThickness;
+
+    // Circular lines
+    for (let r = settings.minorStep; r <= maxRadius; r += settings.minorStep) {
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, r, 0, 2 * Math.PI);
+      ctx.stroke();
+    }
+
+    // Radial lines
+    const angleStep = (2 * Math.PI) / (360 / settings.minorStep);
+    for (let angle = 0; angle < 2 * Math.PI; angle += angleStep) {
+      ctx.beginPath();
+      ctx.moveTo(centerX, centerY);
+      ctx.lineTo(
+        centerX + maxRadius * Math.cos(angle),
+        centerY + maxRadius * Math.sin(angle)
+      );
+      ctx.stroke();
+    }
+  };
+
+  const drawLogarithmicGrid = (ctx: CanvasRenderingContext2D, settings: GridSettings) => {
+    ctx.strokeStyle = settings.minorColor;
+    ctx.lineWidth = settings.minorThickness;
+    ctx.beginPath();
+
+    for (let decade = 1; decade <= settings.width; decade *= 10) {
+      for (let i = 1; i <= 9; i++) {
+        const x = Math.log10(decade * i) * (settings.width / Math.log10(settings.width));
+        if (x <= settings.width) {
+          ctx.moveTo(x, 0);
+          ctx.lineTo(x, settings.height);
+        }
+      }
+    }
+
+    for (let decade = 1; decade <= settings.height; decade *= 10) {
+      for (let i = 1; i <= 9; i++) {
+        const y = Math.log10(decade * i) * (settings.height / Math.log10(settings.height));
+        if (y <= settings.height) {
+          ctx.moveTo(0, y);
+          ctx.lineTo(settings.width, y);
+        }
+      }
+    }
+
+    ctx.stroke();
+  };
+
+  const drawModularGrid = (ctx: CanvasRenderingContext2D, settings: GridSettings) => {
+    const moduleSize = settings.majorStep;
+    
+    ctx.strokeStyle = settings.majorColor;
+    ctx.lineWidth = settings.majorThickness;
+    ctx.beginPath();
+
+    for (let x = 0; x <= settings.width; x += moduleSize) {
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, settings.height);
+    }
+
+    for (let y = 0; y <= settings.height; y += moduleSize) {
+      ctx.moveTo(0, y);
+      ctx.lineTo(settings.width, y);
+    }
+
+    ctx.stroke();
+
+    if (settings.showMinorGrid) {
+      const divisions = Math.floor(moduleSize / settings.minorStep);
+      const divisionSize = moduleSize / divisions;
+      
+      ctx.strokeStyle = settings.minorColor;
+      ctx.lineWidth = settings.minorThickness;
+      ctx.beginPath();
+
+      for (let x = 0; x <= settings.width; x += divisionSize) {
+        if (x % moduleSize !== 0) {
+          ctx.moveTo(x, 0);
+          ctx.lineTo(x, settings.height);
+        }
+      }
+
+      for (let y = 0; y <= settings.height; y += divisionSize) {
+        if (y % moduleSize !== 0) {
+          ctx.moveTo(0, y);
+          ctx.lineTo(settings.width, y);
+        }
+      }
+
+      ctx.stroke();
+    }
+  };
+
+  // SVG generation for all grid types
+  const generateSVGForAllGridTypes = (settings: GridSettings): string => {
     let svg = '';
     
-    if (settings.gridType === 'square') {
-      if (settings.showMinorGrid) {
-        svg += '<g stroke-linecap="square" stroke-linejoin="miter">';
+    switch (settings.gridType) {
+      case 'square':
+        if (settings.showMinorGrid) {
+          for (let x = 0; x <= settings.width; x += settings.minorStep) {
+            svg += `<line x1="${x}" y1="0" x2="${x}" y2="${settings.height}" stroke="${settings.minorColor}" stroke-width="${settings.minorThickness}" vector-effect="non-scaling-stroke"/>`;
+          }
+          for (let y = 0; y <= settings.height; y += settings.minorStep) {
+            svg += `<line x1="0" y1="${y}" x2="${settings.width}" y2="${y}" stroke="${settings.minorColor}" stroke-width="${settings.minorThickness}" vector-effect="non-scaling-stroke"/>`;
+          }
+        }
+        
+        if (settings.showMajorGrid) {
+          for (let x = 0; x <= settings.width; x += settings.majorStep) {
+            svg += `<line x1="${x}" y1="0" x2="${x}" y2="${settings.height}" stroke="${settings.majorColor}" stroke-width="${settings.majorThickness}" vector-effect="non-scaling-stroke"/>`;
+          }
+          for (let y = 0; y <= settings.height; y += settings.majorStep) {
+            svg += `<line x1="0" y1="${y}" x2="${settings.width}" y2="${y}" stroke="${settings.majorColor}" stroke-width="${settings.majorThickness}" vector-effect="non-scaling-stroke"/>`;
+          }
+        }
+        break;
+        
+      case 'dotted':
+        if (settings.showMinorGrid) {
+          for (let x = 0; x <= settings.width; x += settings.minorStep) {
+            for (let y = 0; y <= settings.height; y += settings.minorStep) {
+              svg += `<circle cx="${x}" cy="${y}" r="${settings.minorThickness}" fill="${settings.minorColor}"/>`;
+            }
+          }
+        }
+        if (settings.showMajorGrid) {
+          for (let x = 0; x <= settings.width; x += settings.majorStep) {
+            for (let y = 0; y <= settings.height; y += settings.majorStep) {
+              svg += `<circle cx="${x}" cy="${y}" r="${settings.majorThickness}" fill="${settings.majorColor}"/>`;
+            }
+          }
+        }
+        break;
+        
+      // Add other grid types as needed...
+      default:
+        // Fallback to square grid for other types
         for (let x = 0; x <= settings.width; x += settings.minorStep) {
-          svg += `<line x1="${x}" y1="0" x2="${x}" y2="${settings.height}" stroke="${settings.minorColor}" stroke-width="${settings.minorThickness}" vector-effect="non-scaling-stroke"/>`;
+          svg += `<line x1="${x}" y1="0" x2="${x}" y2="${settings.height}" stroke="${settings.minorColor}" stroke-width="${settings.minorThickness}"/>`;
         }
         for (let y = 0; y <= settings.height; y += settings.minorStep) {
-          svg += `<line x1="0" y1="${y}" x2="${settings.width}" y2="${y}" stroke="${settings.minorColor}" stroke-width="${settings.minorThickness}" vector-effect="non-scaling-stroke"/>`;
+          svg += `<line x1="0" y1="${y}" x2="${settings.width}" y2="${y}" stroke="${settings.minorColor}" stroke-width="${settings.minorThickness}"/>`;
         }
-        svg += '</g>';
-      }
-      
-      if (settings.showMajorGrid) {
-        svg += '<g stroke-linecap="square" stroke-linejoin="miter">';
-        for (let x = 0; x <= settings.width; x += settings.majorStep) {
-          svg += `<line x1="${x}" y1="0" x2="${x}" y2="${settings.height}" stroke="${settings.majorColor}" stroke-width="${settings.majorThickness}" vector-effect="non-scaling-stroke"/>`;
-        }
-        for (let y = 0; y <= settings.height; y += settings.majorStep) {
-          svg += `<line x1="0" y1="${y}" x2="${settings.width}" y2="${y}" stroke="${settings.majorColor}" stroke-width="${settings.majorThickness}" vector-effect="non-scaling-stroke"/>`;
-        }
-        svg += '</g>';
-      }
     }
     
     return svg;
