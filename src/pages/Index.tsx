@@ -389,36 +389,35 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Mobile Warning */}
-      <div className="block md:hidden p-4 bg-surface border-b border-border text-center">
-        <p className="text-sm text-text-secondary">
-          Put down your phone and do something on the desktop using grid[y]:
-        </p>
-        <p className="text-xs text-text-muted mt-1">
-          I don't know, a poster, for example!
-        </p>
-      </div>
+      <div className="flex flex-col md:flex-row h-screen">
+        {/* Mobile Title */}
+        <div className="md:hidden p-3 bg-surface border-b border-border text-center">
+          <div className="text-sm font-street font-black tracking-wider text-text-primary">
+            GRID[Y] GENERATOR
+          </div>
+        </div>
 
-      <div className="flex h-screen">
-        {/* Vertical Title */}
+        {/* Vertical Title - Desktop */}
         <div className="hidden md:flex items-center justify-center w-8 bg-surface border-r border-border">
           <div className="transform -rotate-90 text-sm font-street font-black tracking-wider text-text-primary whitespace-nowrap">
             GRID[Y] GENERATOR
           </div>
         </div>
 
-        {/* Control Panel */}
-        <ControlPanel
-          settings={settings}
-          onSettingsChange={setSettings}
-          onExportPNG={exportToPNG}
-          onExportSVG={exportToSVG}
-          onRandomize={randomizeSettings}
-        />
+        {/* Control Panel - Desktop */}
+        <div className="hidden md:block">
+          <ControlPanel
+            settings={settings}
+            onSettingsChange={setSettings}
+            onExportPNG={exportToPNG}
+            onExportSVG={exportToSVG}
+            onRandomize={randomizeSettings}
+          />
+        </div>
 
         {/* Canvas Area */}
-        <div className="flex-1 flex flex-col">
-          <div className="flex-1 p-4 overflow-hidden">
+        <div className="flex-1 flex flex-col min-h-0">
+          <div className="flex-1 p-2 md:p-4 overflow-hidden">
             <GridCanvas 
               settings={settings}
               className="w-full h-full"
@@ -426,9 +425,9 @@ const Index = () => {
           </div>
           
           {/* Status Bar */}
-          <div className="px-4 py-2 bg-surface border-t border-border text-xs text-text-muted">
-            <div className="flex justify-between items-center">
-              <div>
+          <div className="px-2 md:px-4 py-2 bg-surface border-t border-border text-xs text-text-muted">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-1 md:gap-0">
+              <div className="text-center md:text-left">
                 Size: {settings.width} × {settings.height} • 
                 Type: {settings.gridType.charAt(0).toUpperCase() + settings.gridType.slice(1)} • 
                 Minor: {settings.minorStep}px • 
@@ -446,6 +445,18 @@ const Index = () => {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Mobile Control Panel */}
+        <div className="md:hidden bg-surface border-t border-border">
+          <ControlPanel
+            settings={settings}
+            onSettingsChange={setSettings}
+            onExportPNG={exportToPNG}
+            onExportSVG={exportToSVG}
+            onRandomize={randomizeSettings}
+            isMobile={true}
+          />
         </div>
       </div>
     </div>

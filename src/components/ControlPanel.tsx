@@ -7,6 +7,7 @@ interface ControlPanelProps {
   onExportPNG: () => void;
   onExportSVG: () => void;
   onRandomize: () => void;
+  isMobile?: boolean;
 }
 
 const PRESETS = [
@@ -32,7 +33,8 @@ export const ControlPanel = ({
   onSettingsChange,
   onExportPNG,
   onExportSVG,
-  onRandomize
+  onRandomize,
+  isMobile = false
 }: ControlPanelProps) => {
   const updateSettings = (updates: Partial<GridSettings>) => {
     onSettingsChange({ ...settings, ...updates });
@@ -46,7 +48,7 @@ export const ControlPanel = ({
   };
 
   return (
-    <div className="w-64 bg-surface border-r border-border p-4 overflow-y-auto h-full">
+    <div className={`${isMobile ? 'w-full p-3 max-h-64 overflow-y-auto' : 'w-64 bg-surface border-r border-border p-4 overflow-y-auto h-full'}`}>
       {/* Canvas Size */}
       <div className="control-section">
         <h3 className="control-title">Canvas Size</h3>
@@ -91,7 +93,7 @@ export const ControlPanel = ({
           </label>
         </div>
 
-        <div className="grid grid-cols-2 gap-2">
+        <div className={`grid ${isMobile ? 'grid-cols-4' : 'grid-cols-2'} gap-2`}>
           <div>
             <label className="form-label">Width (px)</label>
             <input
@@ -114,6 +116,23 @@ export const ControlPanel = ({
               max="5000"
             />
           </div>
+          {isMobile && (
+            <>
+              <button 
+                className="button-secondary flex items-center justify-center gap-1"
+                onClick={onExportPNG}
+              >
+                <Zap size={12} />
+                PNG
+              </button>
+              <button 
+                className="button-primary flex items-center justify-center gap-1"
+                onClick={onRandomize}
+              >
+                <Shuffle size={12} />
+              </button>
+            </>
+          )}
         </div>
       </div>
 
@@ -151,7 +170,7 @@ export const ControlPanel = ({
             </label>
           </div>
           
-          <div className="space-y-2">
+            <div className={`${isMobile ? 'grid grid-cols-3 gap-2' : 'space-y-2'}`}>
             <div>
               <label className="form-label">Step (px)</label>
               <input
@@ -204,7 +223,7 @@ export const ControlPanel = ({
             </label>
           </div>
           
-          <div className="space-y-2">
+          <div className={`${isMobile ? 'grid grid-cols-3 gap-2' : 'space-y-2'}`}>
             <div>
               <label className="form-label">Step (px)</label>
               <input
@@ -261,39 +280,42 @@ export const ControlPanel = ({
         </div>
       </div>
 
-      {/* Export */}
-      <div className="control-section">
-        <h3 className="control-title">Export</h3>
-        
-        <div className="grid grid-cols-2 gap-2">
-          <button 
-            className="button-secondary flex items-center justify-center gap-1"
-            onClick={onExportPNG}
-          >
-            <Zap size={12} />
-            PNG
-          </button>
-          <button 
-            className="button-secondary flex items-center justify-center gap-1"
-            onClick={onExportSVG}
-          >
-            <Zap size={12} />
-            SVG
-          </button>
-        </div>
-      </div>
+      {/* Export & Randomize - Desktop Only */}
+      {!isMobile && (
+        <>
+          <div className="control-section">
+            <h3 className="control-title">Export</h3>
+            
+            <div className="grid grid-cols-2 gap-2">
+              <button 
+                className="button-secondary flex items-center justify-center gap-1"
+                onClick={onExportPNG}
+              >
+                <Zap size={12} />
+                PNG
+              </button>
+              <button 
+                className="button-secondary flex items-center justify-center gap-1"
+                onClick={onExportSVG}
+              >
+                <Zap size={12} />
+                SVG
+              </button>
+            </div>
+          </div>
 
-      {/* Randomize */}
-      <div className="control-section">
-        <button 
-          className="button-primary w-full flex items-center justify-center gap-2"
-          onClick={onRandomize}
-        >
-          <Shuffle size={14} />
-          Randomize
-          <Sparkles size={12} />
-        </button>
-      </div>
+          <div className="control-section">
+            <button 
+              className="button-primary w-full flex items-center justify-center gap-2"
+              onClick={onRandomize}
+            >
+              <Shuffle size={14} />
+              Randomize
+              <Sparkles size={12} />
+            </button>
+          </div>
+        </>
+      )}
     </div>
   );
 };
